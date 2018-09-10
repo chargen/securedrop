@@ -23,13 +23,18 @@ def test_firefox_is_installed(Package, Command):
     assert c.stdout.rstrip() == "Mozilla Firefox 46.0.1"
 
 
-def test_xvfb_service_config(File, Sudo):
+def test_xvfb_service_config_trusty(File, Sudo, SystemInfo):
     """
     Ensure xvfb service configuration file is present.
     Using Sudo context manager because the expected mode is 700.
     Not sure it's really necessary to have this script by 700; 755
     sounds sufficient.
     """
+    # We're checking the upstart/sysv-style init script, which is only
+    # relevant for Trusty.
+    if SystemInfo.release != "trusty":
+        return True
+
     with Sudo():
         f = File("/etc/init.d/xvfb")
     assert f.is_file
@@ -74,7 +79,7 @@ exit 0
         assert f.content.rstrip() == xvfb_init_content
 
 
-def test_xvfb_service_enabled(Command, Sudo):
+def test_xvfb_service_enabled_trusty(Command, Sudo, SystemInfo):
     """
     Ensure xvfb is configured to start on boot via update-rc.d.
     The `-n` option to update-rc.d is dry-run.
@@ -83,6 +88,11 @@ def test_xvfb_service_enabled(Command, Sudo):
     Not sure it's really necessary to have this script by 700; 755
     sounds sufficient.
     """
+    # We're checking the upstart/sysv-style init script, which is only
+    # relevant for Trusty.
+    if SystemInfo.release != "trusty":
+        return True
+
     with Sudo():
         c = Command('update-rc.d -n xvfb defaults')
     assert c.rc == 0
@@ -103,7 +113,7 @@ def test_xvfb_display_config(File):
     assert f.contains("export DISPLAY=:1\n")
 
 
-def test_xvfb_service_running(Process, Sudo):
+def test_xvfb_service_running_trusty(Process, Sudo, SystemInfo):
     """
     Ensure that xvfb service is running.
 
@@ -111,6 +121,11 @@ def test_xvfb_service_running(Process, Sudo):
     subcommand for the init script, and our custom version doesn't have
     one. So let's make sure the process is running.
     """
+    # We're checking the upstart/sysv-style init script, which is only
+    # relevant for Trusty.
+    if SystemInfo.release != "trusty":
+        return True
+
     # Sudo isn't necessary to read out of /proc on development, but is
     # required when running under Grsecurity, which app-staging does.
     # So let's escalate privileges to ensure we can determine service state.
