@@ -1,3 +1,9 @@
+# We expect Ubuntu, either Trusty or Xenial, the two LTSes
+# currently targeted for support.
+SUPPORTED_CODENAMES = ('trusty', 'xenial')
+SUPPORTED_RELEASES = ('14.04', '16.04')
+
+
 def test_ansible_version(host):
     """
     Check that a supported version of Ansible is being used.
@@ -20,5 +26,5 @@ def test_platform(SystemInfo):
     """
     assert SystemInfo.type == "linux"
     assert SystemInfo.distribution == "ubuntu"
-    assert SystemInfo.codename == "trusty"
-    assert SystemInfo.release == "14.04"
+    assert SystemInfo.codename in SUPPORTED_CODENAMES
+    assert SystemInfo.release in SUPPORTED_RELEASES
