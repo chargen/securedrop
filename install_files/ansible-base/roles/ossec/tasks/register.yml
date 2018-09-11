@@ -61,6 +61,18 @@
     - ossec_is_client
     - not ossec_agent_already_registered
 
+# DNS lookups do not work with ipv6 due to an ongoing issue with and
+# disabled ipv6 stacks. Using ip instead of hostname is a workaround.
+# see https://github.com/ossec/ossec-hids/issues/1145
+- name: Replace hostname by monitor IP in config
+  replace:
+    dest: "/var/ossec/etc/ossec.conf"
+    replace: "<server-ip {{ monitor_ip }} }}</server-ip>"
+    regexp: '//\<server-hostname\>securedrop-monitor-server-alias\<\/server-hostname\>'
+  when:
+    - ossec_is_client
+    - not ossec_agent_already_registered
+
 # Ossec 3.0 now defaults to requiring a shared secret for agent authentication.
 # Disabling authentication is broken for authd in ossec 3.0. Registering agents
 # requires a 32 hex character password with a line feed appended to the
